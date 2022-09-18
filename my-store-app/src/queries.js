@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-
+// GET
 const getProductsList = async (pageParam) => {
   try {
     const response = await axios.get(`https://fakestoreapi.com/products?limit=${pageParam}`);
@@ -17,7 +17,17 @@ const getProducts = async () => {
     } catch (error) {
       console.error(error);
     }
-  }
+}
   
+// POST
 
-export { getProducts, getProductsList }
+const postProduct = async (payload) => {
+  try {
+    const response = await axios.post('https://fakestoreapi.com/products', payload);
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+export { getProducts, getProductsList, postProduct }
