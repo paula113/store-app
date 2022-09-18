@@ -1,10 +1,10 @@
-const axios = require('axios').default;
+import axios from 'axios';
 
 
 const getProductsList = async (pageParam) => {
   try {
     const response = await axios.get(`https://fakestoreapi.com/products?limit=${pageParam}`);
-    return response.json();
+    return response.data;
   } catch (error) {
     console.error(error);
   }
@@ -13,7 +13,7 @@ const getProductsList = async (pageParam) => {
 const getProducts = async () => {
     try {
       const response = await axios.get('https://fakestoreapi.com/products');
-      return response.json();
+      return response.data;
     } catch (error) {
       console.error(error);
     }
