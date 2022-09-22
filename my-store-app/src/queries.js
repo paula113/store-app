@@ -2,10 +2,8 @@ import axios from 'axios';
 
 // GET
 const getProductsList = async (pageParam) => {
-  console.log('pageParam', pageParam);
   try {
-    const response = await axios.get(`https://fakestoreapi.com/products?limit=${pageParam}`);
-    console.log('response', response.data.length);
+    const response = await axios.get(`https://randomuser.me/api/?page=${pageParam}&results=10`);
     return response.data;
   } catch (error) {
     console.error(error);
