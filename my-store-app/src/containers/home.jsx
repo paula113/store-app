@@ -25,7 +25,7 @@ const Home = () =>{
       <ResponsiveAppBar />
 
       <Grid2 container spacing={{ xs: 2, md: 3, lg: 3 }} mt={2} columns={{ xs: 4, sm: 8, md: 12, lg: 12}}>
-      {data && (data.map(product => (
+      {data.length > 0 && (data.map(product => (
       <Grid2 xs={2} sm={4} md={4} lg={3} key={product.id} >
       <Card  sx={{ maxWidth: 345 }}>
         <CardActionArea>
