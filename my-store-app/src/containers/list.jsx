@@ -38,7 +38,8 @@ const List = () =>{
     }
   });
 
-  const fetchProjects = ({ pageParam = 0 }) => getProductsList(pageParam);
+  const fetchProjects = ({ pageParam = 20 }) => getProductsList(pageParam);
+
   const {
     data,
     error,
@@ -48,18 +49,22 @@ const List = () =>{
     isFetchingNextPage,
     status,
   } = useInfiniteQuery(['products'], fetchProjects, {
-    getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
-  }, {retry: 0})
+    // determining if there is more data to load and the information to fetch it. 
+    getNextPageParam: (lastPage, page) => {
+      console.log(lastPage.next !== null);
+      if (lastPage.next !== null) {
+        console.log(lastPage.next = 1);
+
+        return lastPage.next = page.length;
+      }
+      return lastPage;
+    }
+  })
 
   const mutation = useMutation(postProduct, {
     onSuccess: async (result) => {
-      
       queryClient.invalidateQueries(['products'])
       reset(result)
-      console.log("I'm first!")
-    },
-    onSettled: async () => {
-      console.log("I'm second!")
     },
   })
 
@@ -93,7 +98,7 @@ const List = () =>{
   const categories = data?.pages.map(group => groupBy(group, 'category'));
   const uniqueCategories = categories.flatMap(category => Object.keys(category));
   const options = uniqueCategories.map(category => ({ value: category, label: category }));
-
+  console.log(data?.pages[0].results ?? [], data?.pageParams)
   return (
     <>
     <ResponsiveAppBar/>
@@ -109,7 +114,6 @@ const List = () =>{
        variant="contained" 
        aria-label="Add product" 
        component="label"
-      //  ref={buttonRef}
        onClick={handleClickOpen}
        >
        
@@ -118,7 +122,7 @@ const List = () =>{
       </Stack>
 
     <Grid2 container spacing={{ xs: 2, md: 3, lg: 3 }} mt={2} columns={{ xs: 4, sm: 8, md: 12, lg: 12}}>
-    {data?.pages.map(group => (
+    {data && (data.pages.map(group => (
       <>
         {group.map(product =>
         <Grid2 xs={2} sm={4} md={4} lg={3} key={product.id} >
@@ -150,7 +154,6 @@ const List = () =>{
             variant="contained" 
             aria-label="Add product" 
             component="label"
-            // ref={buttonRef}
             onClick={handleClickOpen}
             >
           <EditIcon />
@@ -160,7 +163,7 @@ const List = () =>{
         </Grid2>
          )}
       </>
-      ))}
+      )))}
       </Grid2>
 
       <Stack 
@@ -172,7 +175,7 @@ const List = () =>{
        mb={12}
       >
         <button
-          onClick={() => fetchNextPage()}
+          onClick={fetchNextPage}
           disabled={!hasNextPage || isFetchingNextPage}
         >
           {isFetchingNextPage
