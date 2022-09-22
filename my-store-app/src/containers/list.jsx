@@ -51,10 +51,7 @@ const List = () =>{
   } = useInfiniteQuery(['products'], fetchProjects, {
     // determining if there is more data to load and the information to fetch it. 
     getNextPageParam: (lastPage, page) => {
-      console.log(lastPage.next !== null);
       if (lastPage.next !== null) {
-        console.log(lastPage.next = 1);
-
         return lastPage.next = page.length;
       }
       return lastPage;
@@ -95,10 +92,10 @@ const List = () =>{
     }, {});
   }
 
-  const categories = data?.pages.map(group => groupBy(group, 'category'));
-  const uniqueCategories = categories.flatMap(category => Object.keys(category));
-  const options = uniqueCategories.map(category => ({ value: category, label: category }));
-  console.log(data?.pages[0].results ?? [], data?.pageParams)
+  const categories = data?.pages?.map(group => groupBy(group, 'category'));
+  const uniqueCategories = data?.pages ? categories.flatMap(category => Object.keys(category)) : null;
+  const options = uniqueCategories?.map(category => ({ value: category, label: category }));
+
   return (
     <>
     <ResponsiveAppBar/>
@@ -122,7 +119,7 @@ const List = () =>{
       </Stack>
 
     <Grid2 container spacing={{ xs: 2, md: 3, lg: 3 }} mt={2} columns={{ xs: 4, sm: 8, md: 12, lg: 12}}>
-    {data && (data.pages.map(group => (
+    {data?.pages !== undefined  && (data.pages.map(group => (
       <>
         {group.map(product =>
         <Grid2 xs={2} sm={4} md={4} lg={3} key={product.id} >
