@@ -1,7 +1,5 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
 import ResponsiveAppBar from '../Components/app-bar'
-import { getProductsList, postProduct } from '../queries'
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -9,37 +7,28 @@ import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2'; // Grid version 2
 import Stack from '@mui/material/Stack';
+import {  useUsers } from '../hooks/useUsers';
+import Container from '@mui/material/Container';
 
 const List = () =>{
+  const {    
+      data,
+      fetchNextPage,
+      hasNextPage,
+      isFetching,
+      isFetchingNextPage,
+      isError,
+      isLoading,
+      isSuccess, } = useUsers();
 
-  const fetchProjects = ({ pageParam = 0 }) => getProductsList(pageParam);
-
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery(['products'], fetchProjects, {
-    getNextPageParam: (lastPage, _page) => {
-      return lastPage.info.page + 1
-    }
-  })
-  if (status === 'loading') {
-    return  <p>Loading...</p>
-  }
-  
-  if (error === 'error') {
-    return  <h1>ERROR!!!</h1>
-  }
   return (
     <>
     <ResponsiveAppBar/>
-    <>
+    <Container maxWidth="lg"  sx={{mt:12}}>
+    {isLoading ?? <p>Loading...</p>}
+    {isError ??  <p>Error...</p>}
     <Grid2 container spacing={{ xs: 2, md: 3, lg: 3 }} mt={2} columns={{ xs: 4, sm: 8, md: 12, lg: 12}}>
-    {data.pages !== undefined && (data.pages.map(group => (
+    {isSuccess && (data.pages.map(group => (
       <>
         {group.results.map(product =>
         <Grid2 xs={2} sm={4} md={4} lg={3} key={product.email} >
@@ -84,7 +73,7 @@ const List = () =>{
         <div>{isFetching && !isFetchingNextPage ? 'Fetching...' : null}</div> 
 
       </Stack>
-    </>
+    </Container>
   </>
 )}
 export default List;
