@@ -11,7 +11,7 @@ const getProducts = async () => {
 }
 
 export const useProducts = () => {
-  const query = useQuery(['products'], getProducts);
+  const query = useQuery(['products'], getProducts, { retry: 0 });
   return {
     ...query,
     products: query.data,
