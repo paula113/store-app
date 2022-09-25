@@ -25,12 +25,15 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { deleteProduct } from '../queries'
 
 const Home = () =>{
  const {  products, isError, isLoading, isSuccess } = useProducts();
 
  const queryClient = useQueryClient();
  const [open, setOpen] = useState(false);
+ const [deleteItemId, setDeleteItem] = useState(null);
 
  const { 
    control, formState: { errors }, handleSubmit, reset } = useForm({
@@ -42,7 +45,6 @@ const Home = () =>{
      image: '',
    }
  });
- const onSubmit = data => mutation.mutate(data);
  const handleClickOpen = () => setOpen(true);
  const handleClose = () => setOpen(false);
 
@@ -52,8 +54,17 @@ const Home = () =>{
       reset();
       handleClose();
     },
-  })
+  });
   
+  const onSubmit = data => mutation.mutate(data);
+  const deleteItem = useMutation(deleteProduct, {
+    onSuccess: () => { 
+    queryClient.invalidateQueries('products')
+    setDeleteItem(null); 
+    handleClose();
+  }});
+
+  const handleDelete =  id => deleteItem.mutate(id)
   
   const groupBy = (objectArray, property) =>{
     return objectArray.reduce((acc, obj) => {
@@ -80,7 +91,10 @@ const Home = () =>{
        variant="contained" 
        aria-label="Add product" 
        component="label"
-       onClick={handleClickOpen}
+       onClick={() => {
+         setDeleteItem(null);
+         handleClickOpen()
+       }}
        >
        
         <AddIcon />
@@ -111,8 +125,7 @@ const Home = () =>{
         </CardActionArea>
         <Stack 
             direction="row"
-            justifyContent='flex-end'
-            alignItems="flex-end"
+            justifyContent="space-between"
             >
           <IconButton 
             color="primary"
@@ -123,6 +136,18 @@ const Home = () =>{
             >
           <EditIcon />
          </IconButton>
+         <IconButton 
+            color="primary"
+            variant="contained" 
+            aria-label="Add product" 
+            component="label"
+            onClick={() => { 
+              handleClickOpen();
+              setDeleteItem(product.id)
+              }}
+            >
+          <DeleteOutlineIcon />
+         </IconButton>
          </Stack>
         </Card>
       </Grid2>
@@ -130,6 +155,23 @@ const Home = () =>{
       </Grid2>)}
       {open && (
       <Dialog open={open} onClose={handleClose}>
+      {deleteItemId 
+      ? (<>
+        <DialogTitle>Delete Product</DialogTitle>
+        <DialogContent>
+           Are you sure you want to delete this item?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { 
+            handleClose(); 
+            setDeleteItem(null)
+          }}
+          >
+            Cancel</Button>
+          <Button onClick={() => handleDelete(deleteItemId)}
+          >Agree</Button>
+        </DialogActions>
+        </>) : (<>
         <DialogTitle>Subscribe</DialogTitle>
         <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent sx={{minHeight: '300px'}}>
@@ -221,7 +263,8 @@ const Home = () =>{
           <Button  type="submit" >Send</Button>
         </DialogActions>
         </form>
-
+      </>
+      )}
       </Dialog>
     )}
       </Container>
